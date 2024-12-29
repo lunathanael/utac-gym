@@ -96,3 +96,16 @@ class UtacState:
         move: tuple[int, int, int] = index_to_move(move_index)
         self.make_move(move)
 
+    def copy(self) -> "UtacState":
+        new_state = UtacState()
+        new_state.boardX = self.boardX.copy()
+        new_state.boardO = self.boardO.copy()
+        new_state.main_boardX = self.main_boardX.copy()
+        new_state.main_boardO = self.main_boardO.copy()
+        new_state.main_boardDraw = self.main_boardDraw.copy()
+        new_state.winner = self.winner
+        new_state.current_player = self.current_player
+        new_state.game_over = self.game_over
+        new_state.current_subboard_index = self.current_subboard_index
+        return new_state
+

@@ -1,4 +1,4 @@
+from . import game, types, utils
 from .game import UtacState
-from .utils import get_subboard
 
-__all__ = ["UtacState", "get_subboard"]
+__all__ = ["UtacState", "game", "types", "utils"]

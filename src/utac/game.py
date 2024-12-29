@@ -49,6 +49,8 @@ class UtacState:
         return [move_to_index(move) for move in self.get_legal_moves()]
     
     def make_move(self, move: tuple[int, int, int]) -> None:
+        if move not in self.get_legal_moves():
+            raise ValueError("Move is not legal")
         move_index: int = move_to_index(move)
         subboard_index: int = move[0]
         subboard_move: tuple[int, int] = (move[1], move[2])

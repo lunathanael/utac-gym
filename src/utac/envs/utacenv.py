@@ -13,7 +13,7 @@ class UtacEnv(gym.Env):
     def __init__(self, render_mode=None):
         # Observation space: 3 binary planes of 9x9
         self.observation_space = spaces.Box(
-            low=0, high=1, shape=(3, 9, 9), dtype=np.int8
+            low=0, high=1, shape=(7, 9, 9), dtype=np.int8
         )
 
         # Action space: 81 possible moves (9x9 grid)
@@ -24,6 +24,7 @@ class UtacEnv(gym.Env):
         self.state: utac.UtacState = None
 
     def _get_obs(self):
+        return self._get_features()
         # Convert UtacState to 3 binary planes
         boardX: Board = self.state.boardX.astype(np.int8)
         boardO: Board = self.state.boardO.astype(np.int8)
@@ -50,13 +51,13 @@ class UtacEnv(gym.Env):
         # Convert UtacState to 3 binary planes
         boardX: Board = self.state.boardX.astype(np.int8)
         boardO: Board = self.state.boardO.astype(np.int8)
-        main_boardX: SubBoard = self.state.main_boardX.astype(np.int8)
-        main_boardO: SubBoard = self.state.main_boardO.astype(np.int8)
-        main_boardDraw: SubBoard = self.state.main_boardDraw.astype(np.int8)
+        main_boardX: SubBoard = self.state.main_boardX
+        main_boardO: SubBoard = self.state.main_boardO
+        main_boardDraw: SubBoard = self.state.main_boardDraw
 
-        main_boardX = cast_to_board(main_boardX)
-        main_boardO = cast_to_board(main_boardO)
-        main_boardDraw = cast_to_board(main_boardDraw)
+        main_boardX = cast_to_board(main_boardX).astype(np.int8)
+        main_boardO = cast_to_board(main_boardO).astype(np.int8)
+        main_boardDraw = cast_to_board(main_boardDraw).astype(np.int8)
 
         current_subboard_index: int = self.state.current_subboard_index
         board_mask: Board = np.zeros((9, 9), dtype=np.int8)
@@ -70,12 +71,17 @@ class UtacEnv(gym.Env):
                     move_coord = index_to_board_coord(move_index)
                     board_mask[move_coord] = True
 
+        action_mask = np.zeros((81,), dtype=np.int8)
+        for action in self.state.get_legal_moves_index():
+            action_mask[action] = 1
+        action_mask = action_mask.reshape(9, 9)
+
         if self.state.current_player == "O":
             boardX, boardO = boardO, boardX
             main_boardX, main_boardO = main_boardO, main_boardX
 
         observation = np.stack(
-            [boardX, boardO, board_mask, main_boardX, main_boardO, main_boardDraw],
+            [action_mask, boardX, boardO, board_mask, main_boardX, main_boardO, main_boardDraw],
             axis=0,
         )
         return observation
@@ -89,7 +95,19 @@ class UtacEnv(gym.Env):
             "_legal_moves": self.state.get_legal_moves(),
             "legal_move_indices": self.state.get_legal_moves_index(),
         }
-        
+
+        if self.state.game_over:
+            if self.state.winner == "Draw":
+                raw_r = 0
+            else:
+                raw_r = -1 if self.state.winner == "O" else 1
+
+            info["final_info"] = {
+                "r" : self.score,
+                "l" : self.length,
+                "raw_r" : raw_r
+            }
+
         return info
 
     def reset(self, seed=None, options=None):
@@ -98,8 +116,14 @@ class UtacEnv(gym.Env):
         # Initialize new game state
         self.state = utac.UtacState(current_subboard_index=-1)
 
+        if np.random.random() < 0.5:
+            self.state.make_move_index(np.random.choice(self.state.get_legal_moves_index(), 1)[0])
+
         observation = self._get_obs()
         info = self._get_info()
+
+        self.score = 0
+        self.length = 0
 
         if self.render_mode == "human":
             self._render_frame()
@@ -111,13 +135,30 @@ class UtacEnv(gym.Env):
         try:
             self.state.make_move_index(action)
         except ValueError:
-            return self._get_obs(), -1, True, False, self._get_info()
+            self.score -= 5000
+            self.state.game_over = True
+            self.state.winner = "O" if current_player == "X" else "X"
+            return self._get_obs(), -5000, True, False, self._get_info()
         
+
+        if not self.state.game_over:
+            self.state.make_move_index(np.random.choice(self.state.get_legal_moves_index(), 1)[0])
+
         # Check if game is over
         terminated = self.state.game_over
 
         # Reward: 1 for win, 0 for ongoing, -1 for invalid/loss
-        reward = 1 if terminated and self.state.winner == current_player else 0
+        reward: int
+        if not terminated:
+            reward = 0
+        elif self.state.winner == current_player:
+            reward = 1000
+        elif self.state.winner == "Draw":
+            reward = 0
+        else:
+            reward = -1000
+        self.score += reward
+        self.length += 1
 
         observation = self._get_obs()
         info = self._get_info()

@@ -76,8 +76,9 @@ class MCTSNode:
                   c_param * np.sqrt(np.log(self.visits + 1) / (child.visits + 1e-8)))
 
 class MCTSOpponent:
-    def __init__(self, num_simulations=10):
+    def __init__(self, num_simulations=10, num_rollouts=10):
         self.num_simulations = num_simulations
+        self.num_rollouts = num_rollouts
 
     def get_action(self, observation, info):
         root_state: UtacState = info["state"].copy()
@@ -101,19 +102,23 @@ class MCTSOpponent:
                 node.parent.children[action] = node
 
             # Simulation
-            state_for_rollout = state.copy()
-            while not state_for_rollout.game_over:
-                possible_moves = state_for_rollout.get_legal_moves_index()
-                action = np.random.choice(possible_moves)
-                state_for_rollout.make_move_index(action)
+            value = 0
+            for _ in range(self.num_rollouts):
+                state_for_rollout = state.copy()
+                while not state_for_rollout.game_over:
+                    possible_moves = state_for_rollout.get_legal_moves_index()
+                    action = np.random.choice(possible_moves)
+                    state_for_rollout.make_move_index(action)
+                if state_for_rollout.winner == root_state.current_player:
+                    value += 1
+                elif state_for_rollout.winner == "Draw":
+                    value += 0.5
+            value = value / self.num_rollouts
 
             # Backpropagation
             while node is not None:
                 node.visits += 1
-                if state_for_rollout.winner == root_state.current_player:
-                    node.value += 1
-                elif state_for_rollout.winner == "Draw":
-                    node.value += 0.5
+                node.value += value
                 node = node.parent
 
         # Choose the action with the most visits

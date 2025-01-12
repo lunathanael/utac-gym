@@ -51,7 +51,7 @@ class PlayOpponentWrapper(gym.Wrapper):
 
 class RandomOpponent:
     def get_action(self, observation):
-        action_mask = observation[0].flatten()
+        action_mask = observation[0][0].flatten()
         legal_moves_indices = np.where(action_mask == 1)[0]
         return np.random.choice(legal_moves_indices)
 

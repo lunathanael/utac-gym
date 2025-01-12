@@ -1,4 +1,5 @@
-from . import game, types, utils
-from .game import UtacState
+from . import core, envs
+from .envs import UtacEnv
+from .core import UtacState
 
-__all__ = ["UtacState", "game", "types", "utils"]
+__all__ = ["UtacEnv", "UtacState"]

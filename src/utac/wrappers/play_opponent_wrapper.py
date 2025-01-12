@@ -1,6 +1,7 @@
 import gymnasium as gym
 from gymnasium import spaces
 import numpy as np
+import torch
 
 
 class PlayOpponentWrapper(gym.Wrapper):
@@ -23,17 +24,28 @@ class PlayOpponentWrapper(gym.Wrapper):
         observation, info = super().reset(seed=seed, options=options)
 
         if np.random.random() < 0.5:
+            observation = np.expand_dims(observation, axis=0).astype(np.float32)
+            observation = torch.tensor(observation)
             action = self.opponent.get_action(observation)
+            action = int(action)
             observation, _, _, _, info = super().step(action)
+
+        self.score = 0
         return observation, info
         
     def step(self, action):
         observation, reward, terminated, truncated, info = super().step(action)
-        
         if not terminated and not truncated:
+            observation = np.expand_dims(observation, axis=0).astype(np.float32)
+            observation = torch.tensor(observation)
             action = self.opponent.get_action(observation)
+            action = int(action)
             observation, reward, terminated, truncated, info = super().step(action)
             reward = -reward
+
+        self.score += reward
+        if "final_info" in info:
+            info["final_info"]["r"] = self.score
         return observation, reward, terminated, truncated, info
 
 

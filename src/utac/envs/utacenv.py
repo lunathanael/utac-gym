@@ -86,7 +86,8 @@ class UtacEnv(gym.Env):
             "current_player": self.state.current_player,
             "winner": self.state.winner,
             "game_over": self.state.game_over,
-            "legal_moves": self.state.get_legal_moves(),
+            "_legal_moves": self.state.get_legal_moves(),
+            "legal_move_indices": self.state.get_legal_moves_index(),
         }
 
     def reset(self, seed=None, options=None):
@@ -105,7 +106,7 @@ class UtacEnv(gym.Env):
 
     def step(self, action):
         current_player = self.state.current_player
-        self.state.make_move(action)
+        self.state.make_move_index(action)
 
         # Check if game is over
         terminated = self.state.game_over

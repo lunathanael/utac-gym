@@ -116,9 +116,6 @@ class UtacEnv(gym.Env):
         # Initialize new game state
         self.state = utac.UtacState(current_subboard_index=-1)
 
-        if np.random.random() < 0.5:
-            self.state.make_move_index(np.random.choice(self.state.get_legal_moves_index(), 1)[0])
-
         observation = self._get_obs()
         info = self._get_info()
 
@@ -139,10 +136,6 @@ class UtacEnv(gym.Env):
             self.state.game_over = True
             self.state.winner = "O" if current_player == "X" else "X"
             return self._get_obs(), -5000, True, False, self._get_info()
-        
-
-        if not self.state.game_over:
-            self.state.make_move_index(np.random.choice(self.state.get_legal_moves_index(), 1)[0])
 
         # Check if game is over
         terminated = self.state.game_over

@@ -1,8 +1,10 @@
 import gymnasium as gym
 import utac
+from utac.wrappers import PlayOpponentWrapper, RandomOpponent
 import random
 
 env = gym.make("utac-v0", render_mode="text")
+env = PlayOpponentWrapper(env, opponent=RandomOpponent())
 observation, info = env.reset()
 
 terminated = False

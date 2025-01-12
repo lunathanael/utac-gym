@@ -94,6 +94,7 @@ class UtacEnv(gym.Env):
             "game_over": self.state.game_over,
             "_legal_moves": self.state.get_legal_moves(),
             "legal_move_indices": self.state.get_legal_moves_index(),
+            "state": self.state,
         }
 
         if self.state.game_over:

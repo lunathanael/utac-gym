@@ -81,7 +81,7 @@ class UtacEnv(gym.Env):
         return observation
 
     def _get_info(self):
-        return {
+        info = {
             "current_subboard_index": self.state.current_subboard_index,
             "current_player": self.state.current_player,
             "winner": self.state.winner,
@@ -89,6 +89,8 @@ class UtacEnv(gym.Env):
             "_legal_moves": self.state.get_legal_moves(),
             "legal_move_indices": self.state.get_legal_moves_index(),
         }
+        
+        return info
 
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
@@ -106,8 +108,11 @@ class UtacEnv(gym.Env):
 
     def step(self, action):
         current_player = self.state.current_player
-        self.state.make_move_index(action)
-
+        try:
+            self.state.make_move_index(action)
+        except ValueError:
+            return self._get_obs(), -1, True, False, self._get_info()
+        
         # Check if game is over
         terminated = self.state.game_over
 

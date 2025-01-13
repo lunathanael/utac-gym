@@ -2,10 +2,6 @@ import gymnasium as gym
 from gymnasium import spaces
 import numpy as np
 
-import utac_gym
-from utac_gym.core.types import Board, SubBoard
-from .utils import cast_to_board
-
 from utac_gym.core.gamestate import GameState
 
 

@@ -1,4 +1,4 @@
-from . import utacenv, utils
+from . import utacenv
 from .utacenv import UtacEnv
 from gymnasium import register
 

@@ -1,7 +1,7 @@
-import utac
+import utac_gym
 import random
 
-game = utac.UtacState()
+game = utac_gym.UtacState()
 
 while not game.game_over:
     game.print()

@@ -3,7 +3,7 @@ from gymnasium import spaces
 import numpy as np
 import torch
 
-from utac.core import UtacState
+from utac_gym.core import UtacState
 
 
 class PlayOpponentWrapper(gym.Wrapper):

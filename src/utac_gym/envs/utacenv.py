@@ -1,10 +1,10 @@
 import gymnasium as gym
 from gymnasium import spaces
 import numpy as np
-import utac
-from utac.core.types import Board, SubBoard
+import utac_gym
+from utac_gym.core.types import Board, SubBoard
 from .utils import cast_to_board
-from utac.core.utils import move_to_index, index_to_board_coord
+from utac_gym.core.utils import move_to_index, index_to_board_coord
 
 
 class UtacEnv(gym.Env):
@@ -21,7 +21,7 @@ class UtacEnv(gym.Env):
 
         assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.render_mode = render_mode
-        self.state: utac.UtacState = None
+        self.state: utac_gym.UtacState = None
 
     def _get_obs(self):
         return self._get_features()
@@ -115,7 +115,7 @@ class UtacEnv(gym.Env):
         super().reset(seed=seed)
 
         # Initialize new game state
-        self.state = utac.UtacState(current_subboard_index=-1)
+        self.state = utac_gym.UtacState(current_subboard_index=-1)
 
         observation = self._get_obs()
         info = self._get_info()

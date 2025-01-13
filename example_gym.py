@@ -1,6 +1,6 @@
 import gymnasium as gym
-import utac
-from utac.wrappers import PlayOpponentWrapper, RandomOpponent
+import utac_gym
+from utac_gym.wrappers import PlayOpponentWrapper, RandomOpponent
 import random
 
 env = gym.make("utac-v0", render_mode="text")

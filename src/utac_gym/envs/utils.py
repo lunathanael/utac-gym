@@ -1,5 +1,5 @@
 import numpy as np
-from utac.core.types import Board, SubBoard
+from utac_gym.core.types import Board, SubBoard
 
 
 def cast_to_board(subboard: SubBoard) -> Board:

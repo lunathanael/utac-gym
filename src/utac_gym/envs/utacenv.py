@@ -25,11 +25,25 @@ class UtacEnv(gym.Env):
     def _get_obs(self):
         obs = self.state.get_obs()
         return np.array(obs).reshape(2, 9, 9)
+    
+    def _get_winner(self):
+        if not self.state.is_terminal():
+            return None
+        value = self.state.terminal_value()
+        match value:
+            case 0:
+                return None
+            case 1:
+                return 1
+            case -1:
+                return 0
 
     def _get_info(self):
         info = {
             "state": self.state,
             "legal_move_indices": self.state.get_valid_moves(),
+            "current_player": self.state.current_player(),
+            "winner": self._get_winner(),
         }
 
         return info
@@ -46,17 +60,17 @@ class UtacEnv(gym.Env):
         return observation, info
 
     def step(self, action):
-        current_player = self.state.current_player
+        current_player = self.state.current_player()
         self.state.make_move(action)
 
         terminated = self.state.is_terminal()
 
         # Reward: 1 for win, 0 for ongoing, -1 for invalid/loss
         reward: int
-        winner = self.state.terminal_value()
+        winner = self._get_winner()
         if not terminated:
             reward = 0
-        elif winner == 0:
+        elif winner is None:
             reward = 1e-4
         else:
             reward = 1 if winner == current_player else -1

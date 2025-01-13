@@ -107,10 +107,12 @@ class MCTSOpponent:
                     possible_moves = state_for_rollout.get_valid_moves()
                     action = np.random.choice(possible_moves)
                     state_for_rollout.make_move(action)
-                if state_for_rollout.winner == root_state.current_player:
-                    value += 1
-                elif state_for_rollout.winner == "Draw":
+                if state_for_rollout.terminal_value() == 0:
                     value += 0.5
+                elif state_for_rollout.terminal_value() == root_state.current_player():
+                    value += 1
+                else:
+                    value += 0
             value = value / self.num_rollouts
 
             # Backpropagation

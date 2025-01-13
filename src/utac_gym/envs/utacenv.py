@@ -1,6 +1,7 @@
 import gymnasium as gym
 from gymnasium import spaces
 import numpy as np
+import copy
 
 from utac_gym.core.gamestate import GameState
 
@@ -28,6 +29,7 @@ class UtacEnv(gym.Env):
     def _get_info(self):
         info = {
             "state": self.state,
+            "legal_move_indices": self.state.get_valid_moves(),
         }
 
         return info
@@ -77,3 +79,6 @@ class UtacEnv(gym.Env):
 
     def close(self):
         pass
+
+    def copy(self):
+        return copy.deepcopy(self)

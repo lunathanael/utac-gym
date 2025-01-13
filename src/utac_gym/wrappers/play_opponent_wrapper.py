@@ -2,7 +2,7 @@ import gymnasium as gym
 from gymnasium import spaces
 import numpy as np
 
-from utac_gym.core import UtacState
+from utac_gym.core import GameState
 
 
 class PlayOpponentWrapper(gym.Wrapper):
@@ -54,14 +54,14 @@ class RandomOpponent:
         return np.random.choice(action_mask)
 
 class MCTSNode:
-    def __init__(self, state: UtacState, parent=None, parent_action=None):
+    def __init__(self, state: GameState, parent=None, parent_action=None):
         self.state = state
         self.parent = parent
         self.parent_action = parent_action
         self.children = {}
         self.visits = 0
         self.value = 0.0
-        self.untried_actions = state.get_legal_moves_index()
+        self.untried_actions = state.get_valid_moves()
 
     def is_fully_expanded(self):
         return len(self.untried_actions) == 0
@@ -78,7 +78,7 @@ class MCTSOpponent:
         self.num_rollouts = num_rollouts
 
     def get_action(self, observation, info):
-        root_state: UtacState = info["state"].copy()
+        root_state: GameState = info["state"].copy()
         root = MCTSNode(root_state)
 
         for _ in range(self.num_simulations):
@@ -86,15 +86,15 @@ class MCTSOpponent:
             state = root_state.copy()
 
             # Selection
-            while not state.game_over and node.is_fully_expanded():
+            while not state.is_terminal() and node.is_fully_expanded():
                 node = node.select_child()
-                state.make_move_index(node.parent_action)
+                state.make_move(node.parent_action)
 
             # Expansion
-            if not state.game_over and node.untried_actions:
+            if not state.is_terminal() and node.untried_actions:
                 action = np.random.choice(node.untried_actions)
                 node.untried_actions.remove(action)
-                state.make_move_index(action)
+                state.make_move(action)
                 node = MCTSNode(state.copy(), parent=node, parent_action=action)
                 node.parent.children[action] = node
 
@@ -102,10 +102,10 @@ class MCTSOpponent:
             value = 0
             for _ in range(self.num_rollouts):
                 state_for_rollout = state.copy()
-                while not state_for_rollout.game_over:
-                    possible_moves = state_for_rollout.get_legal_moves_index()
+                while not state_for_rollout.is_terminal():
+                    possible_moves = state_for_rollout.get_valid_moves()
                     action = np.random.choice(possible_moves)
-                    state_for_rollout.make_move_index(action)
+                    state_for_rollout.make_move(action)
                 if state_for_rollout.winner == root_state.current_player:
                     value += 1
                 elif state_for_rollout.winner == "Draw":

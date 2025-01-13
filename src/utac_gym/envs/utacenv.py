@@ -48,22 +48,20 @@ class UtacEnv(gym.Env):
         return observation, info
 
     def step(self, action):
+        current_player = self.state.current_player
         self.state.make_move(action)
 
         terminated = self.state.is_terminal()
 
         # Reward: 1 for win, 0 for ongoing, -1 for invalid/loss
         reward: int
+        winner = self.state.terminal_value()
         if not terminated:
             reward = 0
-        elif self.state.winner == current_player:
-            reward = 1000
-        elif self.state.winner == "Draw":
-            reward = 0
+        elif winner == 0:
+            reward = 1e-4
         else:
-            reward = -1000
-        self.score += reward
-        self.length += 1
+            reward = 1 if winner == current_player else -1
 
         observation = self._get_obs()
         info = self._get_info()
@@ -72,9 +70,6 @@ class UtacEnv(gym.Env):
             self._render_frame()
 
         return observation, reward, terminated, False, info
-
-    def apply_move_index(self, move_index: int):
-        self.state.make_move_index(move_index)
 
     def render(self):
         if self.render_mode == "text":
@@ -86,26 +81,3 @@ class UtacEnv(gym.Env):
 
     def close(self):
         pass
-
-    def get_legal_actions(self):
-        return self.state.get_legal_moves()
-
-    def is_terminal(self):
-        return self.state.game_over
-
-    def clone(self):
-        clone = UtacEnv()
-        clone.state = self.state.copy()
-        return clone
-
-    @property
-    def current_player(self):
-        return self.state.current_player == "X"
-
-    def get_reward(self, current_player: int):
-        players = ["O", "X"]
-        if self.state.winner not in ("X", "O"):
-            return 0
-        if self.state.winner == players[current_player]:
-            return 1
-        return -1

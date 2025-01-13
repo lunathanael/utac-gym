@@ -1,9 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, List, Optional
 
-from .types import Card
-from .hand import Hand
-
 class GameState:
     """
     A Python interface for the C++ GameState class.

@@ -72,18 +72,19 @@ class MCTSNode:
                   key=lambda child: child.value / (child.visits + 1e-8) +
                   c_param * np.sqrt(np.log(self.visits + 1) / (child.visits + 1e-8)))
 
+
 class MCTSOpponent:
     def __init__(self, num_simulations=10, num_rollouts=10):
         self.num_simulations = num_simulations
         self.num_rollouts = num_rollouts
 
     def get_action(self, observation, info):
-        root_state: GameState = info["state"].copy()
+        root_state: GameState = GameState(info["state"])
         root = MCTSNode(root_state)
 
         for _ in range(self.num_simulations):
             node = root
-            state = root_state.copy()
+            state = GameState(root_state)
 
             # Selection
             while not state.is_terminal() and node.is_fully_expanded():
@@ -95,13 +96,13 @@ class MCTSOpponent:
                 action = np.random.choice(node.untried_actions)
                 node.untried_actions.remove(action)
                 state.make_move(action)
-                node = MCTSNode(state.copy(), parent=node, parent_action=action)
+                node = MCTSNode(GameState(state), parent=node, parent_action=action)
                 node.parent.children[action] = node
 
             # Simulation
             value = 0
             for _ in range(self.num_rollouts):
-                state_for_rollout = state.copy()
+                state_for_rollout = GameState(state)
                 while not state_for_rollout.is_terminal():
                     possible_moves = state_for_rollout.get_valid_moves()
                     action = np.random.choice(possible_moves)

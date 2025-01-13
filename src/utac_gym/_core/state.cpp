@@ -9,6 +9,7 @@ using namespace nb::literals;
 void bind_state(nb::module_ &m) {
     nb::class_<State>(m, "State")
         .def(nb::init<>())
+        .def(nb::init<const State &>())
         .def("make_move", &State::make_move)
         .def("get_obs", &State::get_obs)
         .def("get_valid_moves", &State::get_valid_moves)

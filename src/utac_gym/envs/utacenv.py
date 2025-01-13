@@ -79,6 +79,3 @@ class UtacEnv(gym.Env):
 
     def close(self):
         pass
-
-    def copy(self):
-        return copy.deepcopy(self)

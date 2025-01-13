@@ -6,7 +6,7 @@
 namespace nb = nanobind;
 
 void bind_types(nb::module_ &m) {
-    nb::class_<GAMESTATE>(m, "GameState")
+    nb::class_<GAMESTATE>(m, "GAMESTATE")
         .def_rw("occ", &GAMESTATE::occ)
         .def_rw("board", &GAMESTATE::board)
         .def_rw("game_occ", &GAMESTATE::game_occ)

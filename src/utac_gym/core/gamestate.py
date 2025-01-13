@@ -1,13 +1,15 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, List, Optional
+from .types import GAMESTATE
+
 
 class GameState:
     """
     A Python interface for the C++ GameState class.
     """
-    def __init__(self):
-        """Initialize the game state.
-        """
+
+    def __init__(self, gs: Optional[GAMESTATE] = None):
+        """Initialize the game state."""
         pass
 
     def make_move(self, action: int) -> None:
@@ -58,8 +60,26 @@ class GameState:
         """
         pass
 
+    def current_player(self) -> int:
+        """Get the current player.
+
+        Returns:
+            The current player
+        """
+        pass
+
+    def _get_gs(self) -> GAMESTATE:
+        """Get the underlying C++ GameState object.
+
+        Returns:
+            The underlying C++ GameState object
+        """
+        pass
+
+
 if not TYPE_CHECKING:
     from utac_gym._core import State as CppState
+
     GameState = CppState
 
 __all__ = ["GameState"]

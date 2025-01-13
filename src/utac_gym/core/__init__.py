@@ -1,4 +1,4 @@
-from . import game, types, utils
-from .game import UtacState
+from . import game
+from .game import GameState
 
-__all__ = ["UtacState", "game", "types", "utils"]
+__all__ = ["GameState", "game"]

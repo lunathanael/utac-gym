@@ -68,10 +68,7 @@ nanobind_add_module(
 
   # Source code goes here
   ${UTAC_GYM_SRC_CORE}/main_module.cpp
-  ${UTAC_GYM_SRC_CORE}/types.cpp
-  ${UTAC_GYM_SRC_CORE}/hand.cpp
-  ${UTAC_GYM_SRC_CORE}/gamestate.cpp
-  ${UTAC_GYM_SRC_CORE}/score.cpp
+  ${UTAC_GYM_SRC_CORE}/state.cpp
 )
 
 set_property(TARGET _core PROPERTY CXX_STANDARD_REQUIRED ON)

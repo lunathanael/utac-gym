@@ -1,4 +1,4 @@
-from . import game
-from .game import GameState
+from . import gamestate
+from .gamestate import GameState
 
-__all__ = ["GameState", "game"]
+__all__ = ["GameState", "gamestate"]

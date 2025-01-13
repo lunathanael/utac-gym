@@ -8,11 +8,8 @@ class GameState:
     """
     A Python interface for the C++ GameState class.
     """
-    def __init__(self, seed: Optional[int] = None):
+    def __init__(self):
         """Initialize the game state.
-
-        Args:
-            seed: Optional random seed for game initialization
         """
         pass
 

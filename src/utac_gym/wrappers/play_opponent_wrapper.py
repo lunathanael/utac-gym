@@ -1,7 +1,6 @@
 import gymnasium as gym
 from gymnasium import spaces
 import numpy as np
-import torch
 
 from utac_gym.core import UtacState
 
@@ -27,7 +26,6 @@ class PlayOpponentWrapper(gym.Wrapper):
 
         if np.random.random() < 0.5:
             observation = np.expand_dims(observation, axis=0).astype(np.float32)
-            observation = torch.tensor(observation)
             action = self.opponent.get_action(observation, info=info)
             action = int(action)
             observation, _, _, _, info = super().step(action)
@@ -39,7 +37,6 @@ class PlayOpponentWrapper(gym.Wrapper):
         observation, reward, terminated, truncated, info = super().step(action)
         if not terminated and not truncated:
             observation = np.expand_dims(observation, axis=0).astype(np.float32)
-            observation = torch.tensor(observation)
             action = self.opponent.get_action(observation, info=info)
             action = int(action)
             observation, reward, terminated, truncated, info = super().step(action)
